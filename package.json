@@ -1,0 +1,24 @@
+{
+  "name": "node-bloomfilter",
+  "version": "0.0.1",
+  "description": "A native bloomfilter lib using 64bit murmur hash.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "node-gyp rebuild"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/talrasha007/node-bloomfilter.git"
+  },
+  "keywords": [
+    "bloomfilter"
+  ],
+  "author": "Tal Rasha",
+  "license": "MIT",
+  "gypfile": true,
+  "homepage": "https://github.com/talrasha007/node-bloomfilter#readme",
+  "dependencies": {
+    "nnu": "^0.2.0"
+  }
+}
