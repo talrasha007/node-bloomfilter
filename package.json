@@ -2,7 +2,7 @@
   "name": "node-bloomfilter",
   "version": "0.0.1",
   "description": "A native bloomfilter lib using 64bit murmur hash.",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "install": "node-gyp rebuild"
