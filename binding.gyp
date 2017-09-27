@@ -2,6 +2,9 @@
     "targets": [
         {
             "target_name": "node-bloomfilter",
+            "dependencies": [
+                "deps/smhasher.gyp:smhasher"
+            ],
             "sources": [
                 "src/module.cc"
             ],
