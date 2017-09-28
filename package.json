@@ -1,6 +1,6 @@
 {
   "name": "node-bloomfilter",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "A native bloomfilter lib using 64bit murmur hash.",
   "main": "lib/index.js",
   "scripts": {
@@ -19,6 +19,7 @@
   "gypfile": true,
   "homepage": "https://github.com/talrasha007/node-bloomfilter#readme",
   "dependencies": {
+    "nan": "^2.7.0",
     "nnu": "^0.2.0"
   }
 }

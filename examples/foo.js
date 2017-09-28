@@ -1,6 +1,6 @@
 const Bloomfilter = require('../');
 
-const bloom = new Bloomfilter(128, 5);
+const bloom = Bloomfilter.bestFor(128, 0.005);
 bloom.put('1');
 bloom.put('2');
 
