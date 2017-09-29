@@ -18,6 +18,9 @@ public:
 
     static void setupMember(v8::Local<v8::FunctionTemplate>& tpl)
     {
+        Nan::SetPrototypeMethod(tpl, "getBuffer", wrapFunction<&Bloomfilter::getBuffer>);
+        Nan::SetPrototypeMethod(tpl, "setBuffer", wrapFunction<&Bloomfilter::setBuffer>);
+
         Nan::SetPrototypeMethod(tpl, "put", wrapFunction<&Bloomfilter::put>);
         Nan::SetPrototypeMethod(tpl, "mightContain", wrapFunction<&Bloomfilter::mightContain>);
     }
@@ -32,6 +35,27 @@ private:
         _numBits = numBits;
         _numHash = numHash;
         memset(_bitvec, 0, numBits / 8 + 1);
+    }
+
+    NAN_METHOD(getBuffer)
+    {
+        uint64_t offset = info[0]->NumberValue();
+        uint64_t size = info[1]->NumberValue();
+
+        // JS will check the boundry.
+        info.GetReturnValue().Set(
+            Nan::CopyBuffer(_mem + offset, size).ToLocalChecked()
+        );
+    }
+
+    NAN_METHOD(setBuffer)
+    {
+        const char *data = node::Buffer::Data(info[0]);
+        size_t len = node::Buffer::Length(info[0]);
+
+        uint64_t offset = info[1]->NumberValue();
+        // JS will check the boundry.
+        memcpy(_bitvec + offset, data, len);
     }
 
     NAN_METHOD(put)
