@@ -9,15 +9,37 @@ public:
 
     static NAN_METHOD(ctor)
     {
-        uint64_t numBits = info[0]->NumberValue();
-        uint8_t numHash = info[1]->Uint32Value();
-        
-        Bloomfilter *bloom = new Bloomfilter(numBits, numHash);
-        bloom->Wrap(info.This());
+        if (node::Buffer::HasInstance(info[0])) {
+            const uint8_t *data = (uint8_t *)node::Buffer::Data(info[0]);
+            size_t len = node::Buffer::Length(info[0]);
+
+            assert(len >= 8);
+            uint8_t numHash = data[0];
+            uint64_t numBits = 0;
+            for (int i = 0; i < 7; i++) {
+                numBits |= uint64_t(data[7 - i]) << i * 8;
+            }
+
+            Bloomfilter *bloom = new Bloomfilter(numBits, numHash);
+            if (len > 8) {
+                memcpy(bloom->_bitvec, data + 8, len - 8);
+            }
+
+            bloom->Wrap(info.This());
+        } else {
+            uint64_t numBits = info[0]->NumberValue();
+            uint8_t numHash = info[1]->Uint32Value();
+            
+            Bloomfilter *bloom = new Bloomfilter(numBits, numHash);
+            bloom->Wrap(info.This());
+        }
     }
 
     static void setupMember(v8::Local<v8::FunctionTemplate>& tpl)
     {
+        Nan::SetPrototypeMethod(tpl, "getNumBits", wrapFunction<&Bloomfilter::getNumBits>);
+        Nan::SetPrototypeMethod(tpl, "getNumHash", wrapFunction<&Bloomfilter::getNumHash>);
+
         Nan::SetPrototypeMethod(tpl, "getBuffer", wrapFunction<&Bloomfilter::getBuffer>);
         Nan::SetPrototypeMethod(tpl, "setBuffer", wrapFunction<&Bloomfilter::setBuffer>);
 
@@ -27,14 +49,27 @@ public:
 
 private:
     Bloomfilter(uint64_t numBits, uint8_t numHash)
-    : _mem(new char[sizeof(uint64_t) + sizeof(uint8_t) + numBits / 8 + 1]),
-      _numBits(*(uint64_t*)(_mem)),
-      _numHash(*(uint8_t*)(_mem + sizeof(uint64_t))),
-      _bitvec(_mem + sizeof(uint64_t) + sizeof(uint8_t))
+    : _mem(new char[8 + numBits / 8 + 1]),
+      _bitvec(_mem + 8),
+      _numHash(numHash),
+      _numBits(numBits)
     {
-        _numBits = numBits;
-        _numHash = numHash;
+        assert(numBits < 0x0100000000000000);
+
+        _mem[0] = char(numHash);
+        for (int i = 0; i < 7; i++) {
+            _mem[7 - i] = char((numBits >> i * 8) & 0xFF);
+        }
+
         memset(_bitvec, 0, numBits / 8 + 1);
+    }
+
+    NAN_METHOD(getNumBits) {
+        info.GetReturnValue().Set(double(_numBits));
+    }
+
+    NAN_METHOD(getNumHash) {
+        info.GetReturnValue().Set(_numHash);
     }
 
     NAN_METHOD(getBuffer)
@@ -114,9 +149,9 @@ private:
 
 private:
     char *_mem;
-    uint64_t &_numBits;
-    uint8_t &_numHash;
-    char * const _bitvec;
+    char *const _bitvec;
+    uint8_t _numHash;
+    uint64_t _numBits;
 };
 
 const char * const Bloomfilter::CLASS_NAME = "Bloomfilter";
