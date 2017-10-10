@@ -64,11 +64,13 @@ private:
         memset(_bitvec, 0, numBits / 8 + 1);
     }
 
-    NAN_METHOD(getNumBits) {
+    NAN_METHOD(getNumBits)
+    {
         info.GetReturnValue().Set(double(_numBits));
     }
 
-    NAN_METHOD(getNumHash) {
+    NAN_METHOD(getNumHash)
+    {
         info.GetReturnValue().Set(_numHash);
     }
 
