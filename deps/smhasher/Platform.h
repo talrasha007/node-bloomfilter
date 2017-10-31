@@ -16,7 +16,12 @@ void SetAffinity ( int cpu );
 #include <stdlib.h>
 #include <math.h>   // Has to be included before intrin.h or VC complains about 'ceil'
 #include <intrin.h> // for __rdtsc
+
+#if _MSC_VER < 1700
 #include "pstdint.h"
+#else
+#include <stdint.h>
+#endif
 
 #define ROTL32(x,y)	_rotl(x,y)
 #define ROTL64(x,y)	_rotl64(x,y)
