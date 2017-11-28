@@ -10,9 +10,18 @@ console.log(bloom.mightContain('1'));
 console.log(bloom.mightContain('2'));
 console.log(bloom.mightContain('3'));
 
+function inspect(bl) {
+    const { memSize, bitvecSize, numBits, numHash } = bl;
+    console.log({ memSize, bitvecSize, numBits, numHash });
+}
+
 bloom.toStream().pipe(fs.createWriteStream('/tmp/test.bloom')).on('finish', () => {
     Bloomfilter.fromStream(fs.createReadStream('/tmp/test.bloom')).then(deser => {
-        console.log(bloom, deser);
+        console.log('Origin:');
+        inspect(bloom);
+        console.log('Deserialize:');
+        inspect(deser);
+
         deser.toStream().pipe(fs.createWriteStream('/tmp/test_dser.bloom'));
     });
 });
